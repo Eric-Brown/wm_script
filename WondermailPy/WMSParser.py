@@ -189,108 +189,89 @@ class WMSParser:
         # This will contain the 8-bit blocks as numbers (0-255), each representing one byte.
         # The checksum byte is NOT included in these blocks.
         # The first block in the array is the last block in the bitstream (we work backwards).
-        var blocks = []
-        var origBlocks = []
+        blocks = []
+        origBlocks = []
 
         # Checksum data
-        var checksumByte = 0
-        var checksumBits = ""
-        var skyChecksumBits = ""
-        var fullChecksum
+        checksumByte = 0
+        checksumBits = ""
+        skyChecksumBits = ""
+        fullChecksum = ""
 
         # Go 8 bits back from the end. We'll read the next 8 bits as our checksum.
-        bitPtr = curBitStream.length - 8
-        checksumBits = curBitStream.substr(bitPtr, 8)
-        checksumByte = bitsToNum(checksumBits)
+        bitPtr = len(bitStream) - 8
+        checksumBits = bitStream[bitPtr:bitPtr + 8]
+        checksumByte = int(checksumBits, base=2)
 
         # The Sky Checksum is 24 bits.
         bitPtr -= 24
-        skyChecksumBits = curBitStream.substr(bitPtr, 24)
-        fullChecksum = bitsToNum(
-            skyChecksumBits.toString() + checksumBits.toString())
+        skyChecksumBits = bitStream.substr(bitPtr, 24)
+        # This is supposed to concat the checksum to skychecksum
+        # Likely broken
+        fullChecksum = int(skyChecksumBits + checksumBits, base=2)
 
         # http://www.gamefaqs.com/boards/genmessage.php?board=938931&topic=42949038&page=6
         # "At the moment, I figured out what the game is doing with the other half of the encryption.
         # Apparently, if you have an even checksum, you go backwards through the encryption bytes.
         # With an odd checksum, you go forwards through the encryption bytes."
-        var backwards = !(checksumByte & 0x01)
-
-        console.info("CHECKSUM: %d, encPtr goes backwards: %d",
-                     checksumByte, backwards)
+        backwards = not (checksumByte & 0x01)
+        print(f'CHECKSUM: {checksumByte}, encPtr goes backwards: {backwards}')
 
         # Parse everything into blocks.
         # Sky: 1 2-bit block + 16 8-bit blocks + 24-bit skyChecksum + 8-bit checksum.
-        while(bitPtr > 7) {
+        while(bitPtr > 7):
             bitPtr -= 8
-            var data = bitsToNum(curBitStream.substr(bitPtr, 8))
-            blocks[blocks.length] = data
-            origBlocks[origBlocks.length] = data
-        }
+            data = int(bitStream[bitPtr, bitPtr + 8], base=2)
+            blocks[len(blocks)] = data
+            origBlocks[len(origBlocks)] = data
 
         # Handle the 2-bit block at the beginning (should always be 00?)
-        var twoBitsStart = curBitStream.substr(0, 2)
+        twoBitsStart = bitStream.substr(0, 2)
         bitPtr -= 2
 
         # Get our encryption entries.
-        var entries = this.getEncryptionEntries(checksumByte)
+        entries = self.GetEncryptionEntries(checksumByte)
 
         # Figure out the resetByte.
-        var resetByte = 255
-        resetByte = this.getResetByte(fullChecksum)
-        console.info("resetByte used for this code: %d", resetByte)
+        resetByte = 255
+        resetByte = self.GetResetByte(fullChecksum)
+        print(f'resetByte used for this code: {resetByte}')
 
         # Do the decryption.
-        var bwMode = false
-        var tblPtr = 0
-        var encPtr = 0
-        for(var i=0
-            i < blocks.length
-            i++) {
-            if(encPtr == resetByte) {
-                var remaining = blocks.length - i
-                console.info(
-                    "Resetting at %d. %d blocks remain for decryption.", encPtr, remaining)
+        tblPtr = 0
+        encPtr = 0
+        for i in range(len(blocks)):
+            if encPtr is resetByte:
+                remaining = len(blocks) - i
+                print(
+                    f'Resetting at {encPtr}. {remaining} blocks remain for decryption.')
                 encPtr = 0
-            }
-
-            var inputByte = blocks[tblPtr]
-
-            # Add or subtract the number in the encryption entry from it.
-            var result
-            if(encrypt) {
+            inputByte = blocks[tblPtr]
+            result
+            if encrypt:
                 result = (inputByte + entries[encPtr]) & 0xFF
-            }
-            else {
+            else:
                 result = (inputByte - entries[encPtr]) & 0xFF
-            }
-
-            console.info("pos %d, value %d (0x%s), encbyte %d, result is %d",
-                         tblPtr, inputByte, numToHex(inputByte), entries[encPtr], result)
-
+            print(
+                f'pos {tblPtr}, value {inputByte} {hex(inputByte)}, encbyte {entries[encPtr]}, result is {result}')
             # Update the data in the block.
             blocks[i] = result
-
             # Update blockPtr.
-            + +tblPtr
-            + +encPtr
-        }
+            tblPtr += 1
+            encPtr += 1
 
         # String everything together. If we use twoBitsStart, that will be our base point.
-        var outString = twoBitsStart
+        outString = twoBitsStart
 
         # We start at the end and work backwards; the last encryption block is the first 8 bits in the bitstream.
         # That's just how it works.
-        for(var blockPtr=blocks.length - 1
-            blockPtr >= 0
-            blockPtr--) {
-            outString += numToBits(blocks[blockPtr], 8)
-        }
+        for block in blocks.reverse():
+            outString += WMSParser.NumToBits(block, 8)
 
         # Re-add the checksums to the data.
         outString += skyChecksumBits + checksumBits
-
         return outString
-        pass
+
 
 # var WMSParser = {
 
