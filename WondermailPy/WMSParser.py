@@ -61,6 +61,9 @@ class WMSParser:
     # Data used when calculating a checksum in Sky. Calculated below.
     skyChecksumData = []
 
+    def __init__(self):
+        self.skyChecksumData = WMSParser.CreateCRC32Table()
+
     def Sanitize(self, wmString: str):
         # If dontSanitize is there and is checked, return our input.
         # NOTE: currently getOption always returns false
@@ -353,25 +356,16 @@ class WMSParser:
         bitStream = "00" + bitStream + WMSParser.NumToBits(checksum, 32)
         return bitStream
 
-
-
-# /**
-#  * This code generates a CRC32 table.
-#  * http://www.gamefaqs.com/boards/detail.php?board=955859&topic=51920426&message=582176885
-#  */
-# (function() {
-# 	for(var i = 0; i < 256; i++) {
-# 		var entry = i;
-
-# 		for(var j = 0; j < 8; j++) {
-# 			if(!(entry & 1)) {
-# 				entry = entry >>> 1;
-# 			}
-# 			else {
-# 				entry = 0xEDB88320 ^ (entry >>> 1);
-# 			}
-
-# 			WMSParser.skyChecksumData[i] = entry;
-# 		}
-# 	}
-# })();
+    # This code generates a CRC32 table.
+    # http://www.gamefaqs.com/boards/detail.php?board=955859&topic=51920426&message=582176885
+    @staticmethod
+    def CreateCRC32Table():
+        result = []
+        for i in range(256):
+            result.append(i)
+            for _ in range(8):
+                if not (result[-1] & 1):
+                    result[-1] = result[-1] >> 1
+                else:
+                    result[-1] = 0xEDB88320 ^ (result[-1] >> 1)
+        return result
