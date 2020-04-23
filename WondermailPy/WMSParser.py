@@ -355,11 +355,6 @@ class WMSParser:
 
 
 
-# var WMSParser = {
-
-
-# };
-
 # /**
 #  * This code generates a CRC32 table.
 #  * http://www.gamefaqs.com/boards/detail.php?board=955859&topic=51920426&message=582176885
@@ -380,26 +375,3 @@ class WMSParser:
 # 		}
 # 	}
 # })();
-
-# /**
-#  * Convert a set of bits to a number.
-#  * @param String Bits
-#  * @returns Number Number
-#  */
-# function bitsToNum(bits) {
-# 	return parseInt(bits, 2);
-# }
-
-# /**
-#  * Converts a number to a hex string.
-#  * @param Number Number to convert
-#  * @param Number Minimum size of the hex string
-#  * @returns String Hex string
-#  */
-# function numToHex(num, minSize) {
-# 	var hex = num.toString(16).toUpperCase();
-# 	while(hex.length < minSize) {
-# 		hex = "0" + hex;
-# 	}
-# 	return hex;
-# }
