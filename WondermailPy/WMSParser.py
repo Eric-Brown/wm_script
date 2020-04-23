@@ -328,44 +328,36 @@ class WMSParser:
         print(f'Generated a Sky checksum of {checksum} ({hex(checksum)}).')
         return checksum
 
+    # Converts an object to an unencrypted bitstream.
+    # @param object Object containing a key for each key in WMSStruct.
+    # @returns string Unencrypted bitStream
+    def StructureToBits(self, inputStruct):
+        bitStream = ""
+        totalSize = 0
+        for struct in WMSStruct:
+            if "noinclude" in struct:
+                continue
+            if inputStruct[struct["name"]] is "undefined":
+                print(
+                    f'The key {struct["name"]} was not defined in inputStruct {inputStruct}.')
+            data = inputStruct[struct["name"]]
+            binData = WMSParser.NumToBits(data, struct["size"])
+            bitStream += binData
+            totalSize += struct["size"]
+        # For Sky, our "null" byte is 8 bits in length. However, 2 of those bits aren't encrypted. To make it easier on ourselves,
+        # we chop those two off here and re-add them later. These will always be zero so it's ok.
+        bitStream = bitStream[:2]
+        print(f'Generated a {len(bitStream)}-length bitStream: {bitStream}.')
+        checksum = self.CalculateChecksum(bitStream)
+        # Add the two chopped-off zero bits and the checksum.
+        bitStream = "00" + bitStream + WMSParser.NumToBits(checksum, 32)
+        return bitStream
+
+
 
 # var WMSParser = {
 
-# 	// Converts an object to an unencrypted bitstream.
-# 	// @param object Object containing a key for each key in WMSStruct.
-# 	// @returns string Unencrypted bitStream
-# 	"structureToBits": function(inputStruct) {
-# 		var bitStream = "";
-# 		var totalSize = 0;
-# 		for(var i = 0; i < WMSStruct.length; ++i) {
-# 			var key = WMSStruct[i];
-# 			if(key.noinclude) {
-# 				continue;
-# 			}
 
-# 			if(typeof inputStruct[key.name] == "undefined") {
-# 				console.error("The key %s was not defined in inputStruct %o.", key.name, inputStruct);
-# 			}
-
-# 			var data = inputStruct[key.name];
-# 			var binData = numToBits(data, key.size);
-# 			bitStream += binData;
-# 			totalSize += key.size;
-# 		}
-
-# 		// For Sky, our "null" byte is 8 bits in length. However, 2 of those bits aren't encrypted. To make it easier on ourselves,
-# 		// we chop those two off here and re-add them later. These will always be zero so it's ok.
-# 		bitStream = bitStream.substr(2);
-
-# 		console.info("Generated a %d-length bitStream: %s.", bitStream.length, bitStream);
-
-# 		var checksum = this.calculateChecksum(bitStream);
-
-# 		// Add the two chopped-off zero bits and the checksum.
-# 		bitStream = "00" + bitStream + numToBits(checksum, 32);
-
-# 		return bitStream;
-# 	}
 # };
 
 # /**
