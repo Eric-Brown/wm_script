@@ -1,3 +1,5 @@
+from WMSConstants import WMSkyDungeon
+
 # The Wonder Mail S Generator backend code
 
 # This file is placed in the public domain and may be freely used, reproduced, modified, sold or whatever you want.
@@ -5,9 +7,10 @@
 
 #  Data for the Wonder Mail S generator.
 
+# Main WMS gen code class.
 class WMSGenerator:
-    # Mission type format:
 
+    # Mission type format:
     # name: name of type
     # mainType: struct.mainType field
     # specialType: struct.missionSpecial field
@@ -19,75 +22,74 @@ class WMSGenerator:
     # specialFloor: special floor to include in code
     # specialFloorFromList: take a random entry from the named staticList
     # noReward: disable reward boxes
-
     # Every mission type can have a "subTypes" array which overrides all settings for the parent.
-    missionTypes = [
-        {"name": "Rescue client", "mainType": 0,
-            "specialType": 0, "clientIsTarget": True},
-        {"name": "Rescue target", "mainType": 1, "specialType": 0},
-        {"name": "Escort to target", "mainType": 2, "specialType": 0},
+    missionTypes = [{"name": "Rescue client", "mainType": 0,
+                     "specialType": 0, "clientIsTarget": True},
+                    {"name": "Rescue target", "mainType": 1, "specialType": 0},
+                    {"name": "Escort to target", "mainType": 2, "specialType": 0},
 
-        {"name": "Explore with client", "mainType": 3, "clientIsTarget": True, "subTypes": [
-            {"name": "Normal", "specialType": 0},
-            {"name": "Sealed Chamber", "specialType": 1, "specialFloor": 165},
-            {"name": "Golden Chamber", "specialType": 2, "specialFloor": 111},
-            {"name": "New Dungeon (broken?)",
-             "specialType": 3, "advancedOnly": True}
-        ]},
+                    {"name": "Explore with client", "mainType": 3, "clientIsTarget": True, "subTypes": [
+                        {"name": "Normal", "specialType": 0},
+                        {"name": "Sealed Chamber",
+                            "specialType": 1, "specialFloor": 165},
+                        {"name": "Golden Chamber",
+                            "specialType": 2, "specialFloor": 111},
+                        {"name": "New Dungeon (broken?)",
+                         "specialType": 3, "advancedOnly": True}
+                    ]},
 
-        {"name": "Prospect with client", "mainType": 4, "specialType": 0,
-            "useTargetItem": True, "clientIsTarget": True},
-        {"name": "Guide client", "mainType": 5,
-            "specialType": 0, "clientIsTarget": True},
-        {"name": "Find target item", "mainType": 6, "specialType": 0,
-            "useTargetItem": True, "clientIsTarget": True},
-        {"name": "Deliver target item", "mainType": 7, "specialType": 0,
-            "useTargetItem": True, "clientIsTarget": True},
-        {"name": "Search for client", "mainType": 8, "specialType": 0},
+                    {"name": "Prospect with client", "mainType": 4, "specialType": 0,
+                     "useTargetItem": True, "clientIsTarget": True},
+                    {"name": "Guide client", "mainType": 5,
+                     "specialType": 0, "clientIsTarget": True},
+                    {"name": "Find target item", "mainType": 6, "specialType": 0,
+                     "useTargetItem": True, "clientIsTarget": True},
+                    {"name": "Deliver target item", "mainType": 7, "specialType": 0,
+                     "useTargetItem": True, "clientIsTarget": True},
+                    {"name": "Search for client", "mainType": 8, "specialType": 0},
 
-        {"name": "Steal from target", "mainType": 9, "useTargetItem": True, "subTypes": [
-            {"name": "Normal", "specialType": 0},
-            {"name": "Target hidden", "specialType": 1},
-            {"name": "Target runs", "specialType": 2}
-        ]},
+                    {"name": "Steal from target", "mainType": 9, "useTargetItem": True, "subTypes": [
+                        {"name": "Normal", "specialType": 0},
+                        {"name": "Target hidden", "specialType": 1},
+                        {"name": "Target runs", "specialType": 2}
+                    ]},
 
-        {"name": "Arrest client (Magnemite)", "advancedOnly": True, "mainType": 10, "forceClient": 81, "subTypes": [
-            {"name": "Normal", "specialType": 0},
-            {"name": "Escort", "specialType": 4},
-            {"name": "Special Floor (broken)", "specialType": 6,
-             "useTarget2": True, "specialFloorFromList": "thievesden"},
-            {"name": "Monster House", "specialType": 7}
-        ]},
+                    {"name": "Arrest client (Magnemite)", "advancedOnly": True, "mainType": 10, "forceClient": 81, "subTypes": [
+                        {"name": "Normal", "specialType": 0},
+                        {"name": "Escort", "specialType": 4},
+                        {"name": "Special Floor (broken)", "specialType": 6,
+                         "useTarget2": True, "specialFloorFromList": "thievesden"},
+                        {"name": "Monster House", "specialType": 7}
+                    ]},
 
-        # This is the same list as above, just with Magnezone.
-        {"name": "Arrest client (Magnezone)", "advancedOnly": True, "mainType": 10, "forceClient": 504, "subTypes": [
-            {"name": "Normal", "specialType": 0},
-            {"name": "Escort", "specialType": 4},
-            {"name": "Special Floor (broken)", "specialType": 6,
-             "useTarget2": True, "specialFloorFromList": "thievesden"},
-            {"name": "Monster House", "specialType": 7}
-        ]},
+                    # This is the same list as above, just with Magnezone.
+                    {"name": "Arrest client (Magnezone)", "advancedOnly": True, "mainType": 10, "forceClient": 504, "subTypes": [
+                        {"name": "Normal", "specialType": 0},
+                        {"name": "Escort", "specialType": 4},
+                        {"name": "Special Floor (broken)", "specialType": 6,
+                         "useTarget2": True, "specialFloorFromList": "thievesden"},
+                        {"name": "Monster House", "specialType": 7}
+                    ]},
 
-        {"name": "Challenge Request", "mainType": 11, "subTypes": [
-            {"name": "Normal (broken)", "specialType": 0, "useTarget2": True,
-             "advancedOnly": True, "specialFloorFromList": "challengerequest"},
-            {"name": "Mewtwo", "specialType": 1, "forceClient": 150,
-                "forceTarget": 150, "specialFloor": 145},
-            {"name": "Entei", "specialType": 2, "forceClient": 271,
-                "forceTarget": 271, "specialFloor": 146},
-            {"name": "Raikou", "specialType": 3, "forceClient": 270,
-                "forceTarget": 270, "specialFloor": 147},
-            {"name": "Suicine", "specialType": 4, "forceClient": 272,
-                "forceTarget": 272, "specialFloor": 148},
-            {"name": "Jirachi", "specialType": 5, "forceClient": 417,
-                "forceTarget": 417, "specialFloor": 149}
-        ]},
+                    {"name": "Challenge Request", "mainType": 11, "subTypes": [
+                        {"name": "Normal (broken)", "specialType": 0, "useTarget2": True,
+                         "advancedOnly": True, "specialFloorFromList": "challengerequest"},
+                        {"name": "Mewtwo", "specialType": 1, "forceClient": 150,
+                         "forceTarget": 150, "specialFloor": 145},
+                        {"name": "Entei", "specialType": 2, "forceClient": 271,
+                         "forceTarget": 271, "specialFloor": 146},
+                        {"name": "Raikou", "specialType": 3, "forceClient": 270,
+                         "forceTarget": 270, "specialFloor": 147},
+                        {"name": "Suicine", "specialType": 4, "forceClient": 272,
+                         "forceTarget": 272, "specialFloor": 148},
+                        {"name": "Jirachi", "specialType": 5, "forceClient": 417,
+                         "forceTarget": 417, "specialFloor": 149}
+                    ]},
 
-        # You can use any client/target but the game prefers them to be the same.
-        {"name": "Treasure hunt", "mainType": 12, "specialType": 0, "forceClient": 422,
-            "forceTarget": 422, "specialFloorFromList": "treasurehunt", "noReward": True}
-    ]
-
+                    # You can use any client/target but the game prefers them to be the same.
+                    {"name": "Treasure hunt", "mainType": 12, "specialType": 0, "forceClient": 422,
+                     "forceTarget": 422, "specialFloorFromList": "treasurehunt", "noReward": True}
+                    ]
     validDungeons = [
         0x01, 0x03, 0x04, 0x06, 0x07, 0x08, 0x0A, 0x0C, 0x0E, 0x11, 0x14, 0x15, 0x18,
         0x19, 0x22, 0x23, 0x2C, 0x2E, 0x2F, 0x32, 0x33, 0x3E, 0x40, 0x43, 0x46, 0x48,
@@ -134,7 +136,6 @@ class WMSGenerator:
         0x10D, 0x71, 0x212, 0x208, 0x1E2, 0x156, 0x7C, 0x73, 0x19C, 0x10C, 0x01F,
         0x01E, 0x109, 0x1C7, 0x1C2, 0x1C3, 0x1C4
     ]
-
     # Very special case... only Female is included in the list now.
     NIDORAN_FEMALE: 0x18
     NIDORAN_MALE: 0x20
@@ -160,3 +161,451 @@ class WMSGenerator:
     }
 
     # TODO: list of dungeon floor count
+
+    # The DOM form we're using
+    # NOTE: likely will be removed since no DOM..kept for debugging purposes
+    form = 0
+
+    # Last selected mission type (for fillSubTypeList)
+    lastMissionType = 0
+
+    # Enable advanced mode
+    advanced = False
+
+    def setup(self, form):
+        self.form = form
+        # Advanced mode is enabled if we have ?advanced in the URL params.
+        if self.advanced:
+            print("Doing advanced stuff")
+            # $('advancedMode').style.display = 'block'
+            # $('advancedModeOnlyStuff').style.display = 'block';
+        # self.fillDungeonList()
+        # self.fillTypeList()
+        # self.fillSubTypeList()
+        # self.fillItemLists()
+        # self.fillMonsterLists()
+        # self.update()
+        pass
+
+        # Fills various item lists from sky_item.js.
+        # def fillItemLists(self):
+        # 	box1 = this.form.targetItemBox, box2 = this.form.rewardItemBox
+        # 	# Get Chrome to behave...
+        # 	box1.style.display = 'none'
+        # 	box2.style.display = 'none'
+        # 	items = WMSkyItem
+        # 	for(key, value) in items:
+        # 		# For if we use something that extends Object.prototype...
+        # 		addOptionToSelect(box1, key, value)
+        # 		addOptionToSelect(box2, key, value)
+        # 	box1.style.display = 'inline'
+        # 	box2.style.display = 'inline'
+        # 	pass
+
+    # def fillDungeonList(self):
+        # print(f'sdfg')
+        # Fills the dungeon list from sky_dungeon.js.
+        # box = this.form.dungeonBox
+        # box.style.display = 'none'
+        # dungeons = WMSkyDungeon
+        # if self.advanced:
+        # for key, value in dungeons:
+        # addOptionToSelect(box, key, value)
+        # else:
+        # for key in validDungeons:
+        # addOptionToSelect(box, key, dungeons[key])
+        # box.style.display = 'inline'
+        # pass
+
+    # Returns the True monster ID for a given ID based on if the female box is checked.
+    # Both male-only and female-only mons are in the male range and do not allow females.
+    # Otherwise, females are simply +600 from the male one.
+
+    def getTrueMonID(self, id, femaleChecked):
+        # First, make the id male to start with.
+        id = id % 600
+        # Second, the special case. Nidoran doesn't follow the standard +600 convention.
+        if id is WMSGenerator.NIDORAN_MALE or id is WMSGenerator.NIDORAN_FEMALE:
+            if femaleChecked:
+                return WMSGenerator.NIDORAN_FEMALE
+            else:
+                return WMSGenerator.NIDORAN_MALE
+
+        # Third, the actual check.
+        maleOnly = id in WMSGenerator.maleOnly
+        femaleOnly = id in WMSGenerator.femaleOnly
+        if (maleOnly or femaleOnly) and femaleChecked:
+            print(f'Prevented {id} from being marked as female.')
+            return id
+        elif femaleChecked:
+            return id + 600
+        else:
+            return id
+
+        # * Fills the missionType list.
+        # def fillTypeList(self):
+            # Get the box.
+            # var box = this.form.missionTypeBox;
+            # box.style.display = 'none';
+
+            # # Add types!
+            # var types = WMSGenData.missionTypes;
+            # for(var i = 0; i < types.length; ++i) {
+            # 	if(!types[i].advancedOnly || this.advanced) {
+            # 		addOptionToSelect(box, i, types[i].name);
+            # 	}
+            # }
+
+            # box.style.display = 'inline';
+        # 	pass
+
+	#  * Fills the mission subType list based on the currently selected mission. Called multiple times.
+	#  * Also sets the display property on subType and other things.
+	# "fillSubTypeList": function() {
+		# Get the currently selected type.
+	# 	var typeBox = this.form.missionTypeBox;
+	# 	var typeNum = 0;
+	# 	if(typeBox.options[typeBox.selectedIndex]) {
+	# 		typeNum = parseInt(typeBox.options[typeBox.selectedIndex].value, 10);
+	# 	}
+		
+	# 	# Make sure that we don't reset the subtype box if the browser annoys us by sending the change multiple times.
+	# 	if(typeNum == this.lastMissionType) {
+	# 		return;
+	# 	}
+	# 	this.lastMissionType = typeNum;
+		
+	# 	# Get the type data
+	# 	var typeData = WMSGenData.missionTypes[typeNum];
+	# 	if(typeData && typeData.subTypes) {
+	# 		# Empty the subTypeBox (called box from now on).
+	# 		var box = this.form.missionSubTypeBox;
+	# 		while(box.options.length) {
+	# 			box.remove(0);
+	# 		}
+			
+	# 		# Add subTypes for the mission to the select box, unless they are advancedOnly.
+	# 		for(var i = 0; i < typeData.subTypes.length; ++i) {
+	# 			var subData = typeData.subTypes[i];
+	# 			if(!subData.advancedOnly) {
+	# 				addOptionToSelect(box, i, subData.name);
+	# 			}
+	# 		}
+	# 		$('subType').style.display = "inline";
+	# 	}
+	# 	else {
+	# 		$('subType').style.display = "none";
+	# 	}
+	# }
+
+	# 	 * Fills various monster lists from sky_poke.js.
+	# "fillMonsterLists": function() {
+	# 	var box1 = this.form.clientBox, box2 = this.form.targetBox, box3 = this.form.target2Box;
+		
+	# 	# Get Chrome to behave...
+	# 	# box3 is hidden by default.
+	# 	box1.style.display = 'none';
+	# 	box2.style.display = 'none';
+	# 	var poke = WMSkyPoke;
+	# 	if(this.advanced) {
+	# 		for(var key in poke) {
+	# 			if(poke.hasOwnProperty(key)) {
+	# 				addOptionToSelect(box1, key, poke[key]);
+	# 				addOptionToSelect(box2, key, poke[key]);
+	# 				addOptionToSelect(box3, key, poke[key]);
+	# 			}
+	# 		}
+	# 	}
+	# 	else {
+	# 		for(var i = 0; i < WMSGenData.validClients.length; ++i) {
+	# 			var monsterNum = WMSGenData.validClients[i];
+	# 			addOptionToSelect(box1, monsterNum, poke[monsterNum]);
+	# 			addOptionToSelect(box2, monsterNum, poke[monsterNum]);
+	# 			addOptionToSelect(box3, monsterNum, poke[monsterNum]);
+	# 		}
+	# 	}
+	# 	box1.style.display = 'inline';
+	# 	box2.style.display = 'inline';
+	# }
+
+	# Returns the value of the currently selected option in a given <select> box (combobox).
+	#  * @param DOMSelect|String Combobox or string with name for one
+	#  * @return String|boolean Value or boolean false
+	# "getComboBoxValue": function(box) {
+	# 	if(typeof box == "string") {
+	# 		box = this.form[box];
+	# 	}
+		
+	# 	if(box && box.options[box.selectedIndex]) {
+	# 		return box.options[box.selectedIndex].value;
+	# 	}
+	# 	else {
+	# 		return false;
+	# 	}
+	# }
+
+	# 	 * Verifies if the input is valid.
+	#  * @param DOMForm Form to check
+	#  * @return array Array containing strings of error messages; empty = all good
+	#  */
+	# "verify": function() {
+	# 	var errors = [];
+		
+	# 	var typeData = this.getTypeData();
+		
+	# 	# If we don't use a forced client and have validClients, check them.
+	# 	if(!typeData.hasOwnProperty("forceClient")) {
+	# 		if(typeData.hasOwnProperty("validClients")) {
+	# 			var client = parseInt(this.form.clientBox, 10);
+	# 			var checkPassed = false;
+	# 			for(var i = 0; i < typeData.validClients.length; ++i) {
+	# 				if(client == typeData.validClients[i]) {
+	# 					checkPassed = True;
+	# 				}
+	# 			}
+				
+	# 			# Build the error.
+	# 			if(!checkPassed) {
+	# 				var error = "Invalid client selected. You must use one of: ";
+	# 				for(var i = 0; i < typeData.validClients.length; ++i) {
+	# 					error += (i !== 0 ? ", " : "") + getMonName(typeData.validClients[i]);
+	# 				}
+	# 				errors[errors.length] = error;
+	# 			}
+	# 		}
+	# 	}
+		
+	# 	# Check if we have a valid reward item (if we get a reward item).
+	# 	var rewardType = parseInt(this.getComboBoxValue("rewardTypeBox"), 10);
+	# 	if(!typeData.noReward && rewardType >= 1 && rewardType <= 4) {
+	# 		var rewardItem = parseInt(this.getComboBoxValue("rewardItemBox", 10));
+	# 		if(rewardItem == 0) {
+	# 			errors[errors.length] = "You must select a reward item!";
+	# 		}
+	# 	}
+
+	# 	# Check if we have a valid target item.
+	# 	if(typeData.useTargetItem) {
+	# 		var targetItem = parseInt(this.getComboBoxValue("targetItemBox", 10));
+	# 		for(var i = 0; i < WMSGenData.badTargetItems.length; ++i) {
+	# 			if(WMSGenData.badTargetItems[i] == targetItem) {
+	# 				errors[errors.length] = "The target item you selected is invalid (stackables are not allowed).";
+	# 			}
+	# 		}
+	# 	}
+		
+	# 	return errors;
+	# }
+
+	#  * Returns typeData for the currently selected missionType/subType. typeData is an object with the following keys:
+	#  * @return object typeData
+	#  */
+	# "getTypeData": function() {
+	# 	# Mission type
+	# 	var typeNum = parseInt(this.getComboBoxValue("missionTypeBox"), 10);
+	# 	var typeData = WMSGenData.missionTypes[typeNum];
+	# 	if(!typeData) {
+	# 		return false;
+	# 	}
+		
+	# 	# See if this mission has a subtype.
+	# 	if(typeData.subTypes) {
+	# 		# Get the currently selected subtype.
+	# 		var subTypeNum = parseInt(this.getComboBoxValue("missionSubTypeBox"), 10);
+	# 		var subTypeData = typeData.subTypes[subTypeNum];
+	# 		if(subTypeData) {
+	# 			# Create a soft copy of typeData. This allows us to copy subTypeData over typeData without screwing
+	# 			# things up in the future. This is generally a good thing.
+	# 			var tmp = {};
+	# 			var key;
+	# 			for(key in typeData) {
+	# 				if(typeData.hasOwnProperty(key)) {
+	# 					tmp[key] = typeData[key];
+	# 				}
+	# 			}
+	# 			typeData = tmp;
+				
+	# 			# Copy subTypeData to typeData.
+	# 			for(key in subTypeData) {
+	# 				if(subTypeData.hasOwnProperty(key)) {
+	# 					typeData[key] = subTypeData[key];
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+		
+	# 	return typeData;
+	# }
+
+	# 	 * Shows or hides things when various items in the form are changed.
+	#  * @return void
+	#  */
+	# "update": function() {
+	# 	var typeData = this.getTypeData();
+		
+	# 	# Crappy browser syndrome...
+	# 	if(!typeData) {
+	# 		return;
+	# 	}
+		
+	# 	this.form.target2Box.disabled = !typeData.useTarget2;
+	# 	# HACK: show target2 container by id.
+	# 	$('target2').style.display = (typeData.useTarget2 ? 'block' : 'none');
+		
+	# 	this.form.targetItemBox.disabled = !typeData.useTargetItem;
+
+	# 	var rewardType = parseInt(this.getComboBoxValue("rewardTypeBox"), 10);
+	# 	this.form.rewardTypeBox.disabled = typeData.noReward;
+	# 	this.form.rewardItemBox.disabled = typeData.noReward || (rewardType < 1 || rewardType > 4);
+		
+	# 	this.form.clientBox.disabled = typeData.hasOwnProperty("forceClient");
+	# 	this.form.clientF.disabled = typeData.hasOwnProperty("forceClient");
+	# 	this.form.targetBox.disabled = typeData.hasOwnProperty("forceTarget");
+	# 	this.form.targetF.disabled = typeData.hasOwnProperty("forceTarget");
+		
+	# 	if(typeData.clientIsTarget) {
+	# 		this.form.targetBox.disabled = True;
+	# 		this.form.targetF.disabled = True;
+	# 	}
+	# }
+
+	# 	 * Generates a code and returns it.
+	#  * @return String|boolean Prettified code or boolean false
+	#  */
+	# "generate": function() {
+	# 	# Get typeData.
+	# 	var typeData = this.getTypeData();
+		
+	# 	# Build the base struct.
+	# 	var struct = {};
+		
+	# 	struct.missionType = typeData.mainType;
+	# 	struct.missionSpecial = typeData.specialType;
+		
+	# 	struct.nullBits = 0;
+	# 	struct.mailType = 4;
+	# 	struct.restriction = 0;
+	# 	struct.restrictionType = 0;
+	# 	struct.rewardType = parseInt(this.getComboBoxValue("rewardTypeBox"), 10);
+		
+	# 	# Client
+	# 	if(typeData.hasOwnProperty("forceClient")) {
+	# 		struct.client = typeData.forceClient;
+	# 	}
+	# 	else {
+	# 		var client = parseInt(this.getComboBoxValue("clientBox"), 10);
+	# 		struct.client = this.getTrueMonID(client, this.form.clientF.checked);
+	# 	}
+		
+	# 	# Target
+	# 	if(typeData.hasOwnProperty("forceTarget")) {
+	# 		struct.target = typeData.forceTarget;
+	# 	}
+	# 	else if(typeData.clientIsTarget) {
+	# 		struct.target = struct.client;
+	# 	}
+	# 	else {
+	# 		var client = parseInt(this.getComboBoxValue("targetBox"), 10);
+	# 		struct.target = this.getTrueMonID(client, this.form.targetF.checked);
+	# 	}
+		
+	# 	# Target 2
+	# 	if(typeData.useTarget2) {
+	# 		# See if this works better.
+	# 		struct.target2 = struct.target;
+	# 	}
+	# 	else {
+	# 		# Defaults to zero, let's keep it that way.
+	# 		struct.target2 = 0;
+	# 	}
+		
+	# 	# Reward - based on reward type
+	# 	if(typeData.noReward) {
+	# 		# If we don't use a reward for this mission type, set it to Cash + Apple.
+	# 		struct.rewardType = 1;
+	# 		struct.reward = 109;
+	# 	}
+	# 	else if(struct.rewardType >= 1 && struct.rewardType <= 4) {
+	# 		struct.reward = parseInt(this.getComboBoxValue("rewardItemBox"), 10);
+	# 	}
+	# 	else if(struct.rewardType == 5 || struct.rewardType == 6) {
+	# 		struct.reward = struct.client;
+	# 	}
+	# 	else {
+	# 		# The game seems to complain about not having a reward, so here's an Apple for you.
+	# 		struct.reward = 109;
+	# 	}
+		
+	# 	# Target item - based on mission type
+	# 	if(typeData.useTargetItem) {
+	# 		struct.targetItem = parseInt(this.getComboBoxValue("targetItemBox"), 10);
+	# 	}
+	# 	else {
+	# 		# The game also seems to complain about not having a targetItem, so here's an Apple for you.
+	# 		struct.targetItem = 109;
+	# 	}
+		
+	# 	# Dungeon/floor
+	# 	var dungeon = parseInt(this.getComboBoxValue("dungeonBox"), 10);
+	# 	struct.dungeon = dungeon || 1;
+	# 	var floor = parseInt(this.form.floor.value, 10);
+	# 	struct.floor = (floor >= 1 && floor <= 99) ? floor : 1;
+		
+	# 	# Special floor
+	# 	if(this.form.specialFloor.value != "") {
+	# 		struct.specialFloor = parseInt(this.form.specialFloor.value, 10);
+	# 	}
+	# 	else if(typeData.hasOwnProperty("specialFloor")) {
+	# 		struct.specialFloor = typeData.specialFloor;
+	# 	}
+	# 	else if(typeData.hasOwnProperty("specialFloorFromList")) {
+	# 		# Check for list existance.
+	# 		var listName = typeData.specialFloorFromList;
+	# 		var list = WMSGenData.staticLists[listName];
+	# 		if(!list) {
+	# 			console.error("Static list %s not found.", listName);
+	# 		}
+	# 		var entry = Math.floor(Math.random() * (list.length - 1));
+	# 		console.info("Picked specialFloor entry %d, value: %d", entry, list[entry]);
+	# 		struct.specialFloor = list[entry];
+	# 	}
+	# 	else {
+	# 		struct.specialFloor = 0;
+	# 	}
+		
+	# 	var decBitStream;
+		
+	# 	# Do we have a flavor text override?
+	# 	if(this.form.flavorText.value != "") {
+	# 		# Use it.
+	# 		struct.flavorText = parseInt(this.form.flavorText.value, 10);
+	# 		decBitStream = WMSParser.structureToBits(struct);
+	# 	}
+	# 	else {
+	# 		# If advanced mode is on, don't add a random number (produce predictable codes).
+	# 		# Otherwise, pick a random number in between 300000-400000; this value isn't special in any way.
+	# 		struct.flavorText = 300000 + (this.advanced ? 0 : Math.floor(Math.random() * 100000));
+			
+	# 		decBitStream = WMSParser.structureToBits(struct);
+	# 		var checksum = bitsToNum(decBitStream.substr(138));
+	# 		var resetByte = WMSParser.getResetByte(checksum);
+	# 		console.info("flavorText %d, checksum %d, reset %d", struct.flavorText, checksum, resetByte);
+	# 	}
+		
+	# 	# Encrypt the code.
+	# 	var encBitStream = WMSParser.encryptBitStream(decBitStream);
+
+	# 	# Bitpack it.
+	# 	var bitpacked = WMSParser.bitsToBytes(encBitStream);
+
+	# 	# Scramble it.
+	# 	var byteSwap = this.form.useEUswap.checked ? WMSParser.byteSwapEU : WMSParser.byteSwap;
+	# 	var scrambled = WMSParser.scrambleString(bitpacked, byteSwap);
+		
+	# 	# Prettify it.
+	# 	var prettified = prettyMailString(scrambled, 2, 7);
+		
+	# 	console.info("enc: %o, packed: %o, scrambled: %o, prettified: %o", encBitStream, bitpacked, scrambled, prettified);
+		
+	# 	return prettified;
+	# }
