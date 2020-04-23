@@ -514,3 +514,27 @@ WMSkyPoke = {1: "Bulbasaur", 2: "Ivysaur", 3: "Venusaur", 4: "Charmander",
              526: "Palkia", 527: "Heatran", 528: "Regigigas", 529: "Giratina",
              530: "Cresselia", 531: "Phione", 532: "Manaphy", 533: "Darkrai",
              534: "Shaymin"}
+
+# Wonder Mail S Structure data
+WMSStruct = [
+    {"name": "nullBits", "note": "Null bits", "size": 8},
+    {"name": "specialFloor", "note": "Special floor marker", "size": 8},
+    {"name": "floor", "note": "Floor", "size": 8},
+    {"name": "dungeon", "note": "Dungeon", "size": 8},
+    {"name": "flavorText", "note": "Modifies the flavor text", "size": 24},
+    {"name": "restriction", "note": "Restriction data", "size": 11},
+    {"name": "restrictionType",
+     "note": "Restriction type; mon = 1, type = 0", "size": 1},
+    {"name": "reward", "note": "Reward", "size": 11},
+    {"name": "rewardType", "note": "Reward type", "size": 4},
+    {"name": "targetItem", "note": "Target item", "size": 10},
+    {"name": "target2",
+     "note": "Additional target Poke for certain mission types", "size": 11},
+    {"name": "target", "note": "Target Poke", "size": 11},
+    {"name": "client", "note": "Client Poke", "size": 11},
+    {"name": "missionSpecial", "note": "Mission special texts", "size": 4},
+    {"name": "missionType", "note": "Mission type", "size": 4},
+    {"name": "mailType",
+     "note": "Mail type marker (must be 0100 = 4)", "size": 4},
+    {"name": "checksum", "note": "checksum", "size": 32, "noinclude": True}
+]
