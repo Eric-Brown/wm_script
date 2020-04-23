@@ -4,7 +4,6 @@
 # 	However, it may or may not work; use at your own risk.
 
 
-
 # /* types of data we handle:
 # - scrambled wondermail (as given by game)
 # - unscrambled wondermail
@@ -185,7 +184,7 @@ class WMSParser:
 
         # The Sky Checksum is 24 bits.
         bitPtr -= 24
-        skyChecksumBits = bitStream.substr(bitPtr, 24)
+        skyChecksumBits = bitStream[bitPtr: bitPtr + 24]
         # This is supposed to concat the checksum to skychecksum
         # Likely broken
         fullChecksum = int(skyChecksumBits + checksumBits, base=2)
@@ -201,12 +200,12 @@ class WMSParser:
         # Sky: 1 2-bit block + 16 8-bit blocks + 24-bit skyChecksum + 8-bit checksum.
         while(bitPtr > 7):
             bitPtr -= 8
-            data = int(bitStream[bitPtr, bitPtr + 8], base=2)
+            data = int(bitStream[bitPtr: bitPtr + 8], base=2)
             blocks[len(blocks)] = data
             origBlocks[len(origBlocks)] = data
 
         # Handle the 2-bit block at the beginning (should always be 00?)
-        twoBitsStart = bitStream.substr(0, 2)
+        twoBitsStart = bitStream[:2]
         bitPtr -= 2
 
         # Get our encryption entries.
@@ -259,47 +258,41 @@ class WMSParser:
     def EncryptBitStream(self, currentBitStream):
         return self.DecryptBitStream(currentBitStream, True)
 
+    # Converts a bit string to our internal structure.
+    # @param string Unencrypted bitStream
+    # @returns object WMSStruct data
+    def BitsToStructure(self, bitString):
+        # Where to start reading in the bitString
+        bitPtr = 0
+        # Our eventual output structure
+        outputStruct = {}
+
+        # Contains the bit streams rather than integers - for debug use
+        outputStructBit = {}
+
+        # structInfo contains the name, the size and a note which we'll add at some point somehow.
+        for structure in WMSStruct:
+            # Read "size" bits from the bitString and increment the bitPtr by the same amount
+            bitData = bitString[bitPtr: bitPtr + structure["size"]]
+            bitPtr += structure["size"]
+            # Convert our bit data to a number
+            numData = int(bitData, base=2)
+            # Add it to the outputStruct
+            outputStruct[structure["name"]] = numData
+            outputStructBit[structure["name"]] = bitData
+
+        # We should be at the end now
+        if bitPtr is not len(bitString):
+            print(
+                f'WARNING: Not all available data was parsed into struct. Final bitPtr is {bitPtr}, length is {len(bitString)}')
+
+        print(f'outStruct: {outputStruct}, bitStruct: {outputStructBit}')
+        return outputStruct
+
+    
+
 
 # var WMSParser = {
-
-
-# 	// Converts a bit string to our internal structure.
-# 	// @param string Unencrypted bitStream
-# 	// @returns object WMSStruct data
-# 	"bitsToStructure": function(bitString) {
-# 		// Where to start reading in the bitString
-# 		var bitPtr = 0;
-
-# 		// Our eventual output structure
-# 		var outputStruct = {};
-
-# 		// Contains the bit streams rather than integers - for debug use
-# 		var outputStructBit = {};
-
-# 		for(var structPtr = 0; structPtr < WMSStruct.length; structPtr++) {
-# 			// structInfo contains the name, the size and a note which we'll add at some point somehow.
-# 			var structInfo = WMSStruct[structPtr];
-
-# 			// Read "size" bits from the bitString and increment the bitPtr by the same amount
-# 			var bitData = bitString.substr(bitPtr, structInfo.size);
-# 			bitPtr += structInfo.size;
-
-# 			// Convert our bit data to a number
-# 			var numData = bitsToNum(bitData, 8);
-
-# 			// Add it to the outputStruct
-# 			outputStruct[structInfo.name] = numData;
-# 			outputStructBit[structInfo.name] = bitData;
-# 		}
-
-# 		// We should be at the end now
-# 		if(bitPtr != bitString.length) {
-# 			console.warn("WARNING: Not all available data was parsed into struct. Final bitPtr is %d, length is %d", bitPtr, bitString.length);
-# 		}
-
-# 		console.info("outStruct: %o, bitStruct: %o", outputStruct, outputStructBit);
-# 		return outputStruct;
-# 	},
 
 # 	/**
 # 	 * Calculates the checksum for a given bitStream.
