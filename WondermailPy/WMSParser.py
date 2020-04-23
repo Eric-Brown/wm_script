@@ -272,23 +272,16 @@ class WMSParser:
         outString += skyChecksumBits + checksumBits
         return outString
 
+    # Encrypts a bitstream according to the encryption data by calling
+    # <code>decryptBitStream(stream, true)</code>
+    # @param String decrypted bitstream
+    # @return String encrypted bitstream
+    def EncryptBitStream(self, currentBitStream):
+        return self.DecryptBitStream(currentBitStream, True)
+
 
 # var WMSParser = {
 
-
-# 	"decryptBitStream": function(curBitStream, encrypt) {
-
-# 	},
-
-# 	/**
-# 	 * Encrypts a bitstream according to the encryption data by calling
-# 	 * <code>decryptBitStream(stream, true)</code>
-# 	 * @param String decrypted bitstream
-# 	 * @return String encrypted bitstream
-# 	 */
-# 	"encryptBitStream": function(curBitStream) {
-# 		return this.decryptBitStream(curBitStream, true);
-# 	},
 
 # 	// Converts a bit string to our internal structure.
 # 	// @param string Unencrypted bitStream
