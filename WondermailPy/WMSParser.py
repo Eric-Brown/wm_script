@@ -289,61 +289,47 @@ class WMSParser:
         print(f'outStruct: {outputStruct}, bitStruct: {outputStructBit}')
         return outputStruct
 
-    
+    # Calculates the checksum for a given bitStream.
+    # @param String bitStream in 136-bit raw format or 170-bit full format
+    # @return Number Checksum as decimal number
+    def CalculateChecksum(self, bitStream):
+        # Calculate the checksum - Sky. This is simple CRC32.
+        # http://www.gamefaqs.com/boards/detail.php?board=955859&topic=51920426&message=582176885
+        print(
+            f'Sky Checksum calculation - bitStream of length {len(bitStream)}')
+        if len(bitStream) is 170:
+            print(f'Truncating the 170-long bitStream for you. By golly, I\'m so nice.')
+            bitStream = bitStream[2:138]
+        if len(bitStream) is not 136:
+            print(f'WARNING: bitStream should be 136 bits long!')
+
+        # Start with 0xFFFFFFFF.
+        checksum = 0xFFFFFFFF
+
+        # We have 17 blocks of 8 bits in the bitStream (136 bits).
+        data = ""
+        for i in range(16).__reversed__():
+            # Grab 8 bits from the stream and convert it to a number.
+            bits = bitStream[i*8:(i*8)+8]
+            num = int(bits, base=2)
+            data += chr(num)
+            # Grab a entry from the data table. The entry gotten is equal to
+            entry = self.skyChecksumData[(checksum ^ num) & 0xFF]
+            # The entry is NOT'ed with our current checksum rsl'd 8 times. The result of this will be the new checksum
+            # for this round.
+            checksum = (checksum >> 8) ^ entry
+
+        # Our final checksum is NOT'ed with 0xFFFFFFFF.
+        checksum = checksum ^ 0xFFFFFFFF
+        # Make the checksum positive (WHY MUST YOU DO THIS TO ME JAVASCRIPT!?!?!?)
+        if checksum < 0:
+            # Might not be necessary in python
+            checksum += 4294967296
+        print(f'Generated a Sky checksum of {checksum} ({hex(checksum)}).')
+        return checksum
 
 
 # var WMSParser = {
-
-# 	/**
-# 	 * Calculates the checksum for a given bitStream.
-# 	 * @param String bitStream in 136-bit raw format or 170-bit full format
-# 	 * @return Number Checksum as decimal number
-# 	 */
-# 	"calculateChecksum": function(bitStream) {
-# 		// Calculate the checksum - Sky. This is simple CRC32.
-# 		// http://www.gamefaqs.com/boards/detail.php?board=955859&topic=51920426&message=582176885
-# 		console.info("Sky Checksum calculation - bitStream of length %d.", bitStream.length);
-
-# 		if(bitStream.length == 170) {
-# 			console.info("Truncating the 170-long bitStream for you. By golly, I'm so nice.");
-# 			bitStream = bitStream.substr(2, 136);
-# 		}
-
-# 		if(bitStream.length != 136) {
-# 			console.warn("WARNING: bitStream should be 136 bits long!");
-# 		}
-
-# 		// Start with 0xFFFFFFFF.
-# 		var checksum = 0xFFFFFFFF;
-
-# 		// We have 17 blocks of 8 bits in the bitStream (136 bits).
-# 		var data = "";
-# 		for(var i = 16; i >= 0; --i) {
-# 			// Grab 8 bits from the stream and convert it to a number.
-# 			var bits = bitStream.substr(i * 8, 8);
-# 			var num = bitsToNum(bits);
-# 			data += String.fromCharCode(num);
-
-# 			// Grab a entry from the data table. The entry gotten is equal to
-# 			var entry = this.skyChecksumData[(checksum ^ num) & 0xFF];
-
-# 			// The entry is NOT'ed with our current checksum rsl'd 8 times. The result of this will be the new checksum
-# 			// for this round.
-# 			checksum = (checksum >>> 8) ^ entry;
-# 		}
-
-# 		// Our final checksum is NOT'ed with 0xFFFFFFFF.
-# 		checksum = checksum ^ 0xFFFFFFFF;
-
-# 		// Make the checksum positive (WHY MUST YOU DO THIS TO ME JAVASCRIPT!?!?!?)
-# 		if(checksum < 0) {
-# 			checksum += 4294967296;
-# 		}
-
-# 		console.info("Generated a Sky checksum of %d (%s).", checksum, numToHex(checksum, 8));
-
-# 		return checksum;
-# 	},
 
 # 	// Converts an object to an unencrypted bitstream.
 # 	// @param object Object containing a key for each key in WMSStruct.
